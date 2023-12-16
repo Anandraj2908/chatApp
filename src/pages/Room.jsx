@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { databases } from '../appwriteConfig'
 
+import "./style.scss"
 const Room = () => {
 
     const getMessages = async () => {
@@ -17,15 +18,15 @@ const Room = () => {
     },[])
 
   return (
-    <div className='container' >
-      <div className="mx-32 mt-5 mb-10 bg-slate-500 rounded-lg p-3 flex justify-center ">
-        <div className='bg-slate-700 p-2 rounded-lg'>Logo</div>
+    <div className='mainContainer' >
+      <div className="header bg-slate-500 ">
+        <div className='bg-slate-700 logo'>Logo</div>
       </div>
-      <div className="mx-32 p-2 bg-slate-500 rounded-lg">
-        <div className="messages bg-slate-700 my-3 mx-2 p-2 rounded-lg h-96">
+      <div className="contentBody bg-slate-500 ">
+        <div className="messages bg-slate-700 ">
           Hello
         </div>
-        <div className="input bg-slate-700 my-3 mx-2 p-2 rounded-lg">
+        <div className="input bg-slate-700 ">
           INPUT
         </div>
       </div>
