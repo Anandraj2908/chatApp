@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { databases } from '../appwriteConfig'
 
 import "./style.scss"
@@ -17,6 +17,20 @@ const Room = () => {
       getMessages()
     },[])
 
+    //form
+    
+      const [inputValue, setInputValue] = useState('');
+    
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        // Do something with the form data
+        console.log('Form submitted with value:', inputValue);
+      };
+    
+      const handleInputChange = (e) => {
+        setInputValue(e.target.value);
+      };
+
   return (
     <div className='mainContainer' >
       <div className="header bg-slate-500 ">
@@ -24,11 +38,24 @@ const Room = () => {
       </div>
       <div className="contentBody bg-slate-500 ">
         <div className="messages bg-slate-700 ">
-          Hello
+          <div className="messageItems bg-slate-500">Message</div>
         </div>
-        <div className="input bg-slate-700 ">
-          INPUT
-        </div>
+        
+        <form className="input-form" onSubmit={handleSubmit}>
+          <div className="input-container">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder="Enter text here"
+              className="input-field"
+            />
+            <button type="submit" className="submit-button">
+             ↩
+            </button>
+          </div>
+        </form>
+
       </div>
     </div>
   )
