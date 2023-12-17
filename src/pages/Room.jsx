@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { databases } from '../appwriteConfig'
-import { ID } from 'appwrite'
+import { ID, Query } from 'appwrite'
 
 import "./style.scss"
 const Room = () => {
 
   
 
-  //form
+  //handel form/ create messages
   const [inputValue, setInputValue] = useState('');
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -29,26 +29,39 @@ const Room = () => {
     console.log('Form submitted', response);
     setMessages(prevState => [...messages,response])
     setInputValue('')
+
+
+    
   };
   
-
-
-  //addMessages
-
-
   //listMessages
   const [messages, setMessages] = useState([]);
   const getMessages = async () => {
-    const response = await databases.listDocuments(import.meta.env.VITE_DATABASE_ID,import.meta.env.VITE_COLLECTION_ID);
+    const response = await databases.listDocuments(
+      import.meta.env.VITE_DATABASE_ID,
+      import.meta.env.VITE_COLLECTION_ID,
+      [
+        Query.limit(3)
+      ]);
     const filteredResponse = response.documents.map(doc => {
       const { $collectionId,$databaseId,...rest } = doc;
       return rest;
     });
     setMessages(filteredResponse)
   }
-  useEffect(()=>{
-    getMessages()
-  },[])
+
+  //delete Message
+  const deleteMessage = async (documentId) => {
+    const response = databases.deleteDocument(
+      import.meta.env.VITE_DATABASE_ID,
+      import.meta.env.VITE_COLLECTION_ID,
+      documentId);
+      console.log("Deleted", response)
+      setMessages(prevState => messages.filter(message => message.$id !== documentId))
+      
+  }
+
+  
     
 
   //scrool to bottom
@@ -58,10 +71,10 @@ const Room = () => {
       messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
     }
   };
-
-  useEffect(() => {
+  useEffect(()=>{
+    getMessages()
     scrollToBottom();
-  }, []);
+  },[])
     
   
     
@@ -81,7 +94,7 @@ const Room = () => {
               {messages.map((message)=>(
                 <div className="messageItems leftMsg" key={message.$id}>
                 <div className="messageUser">{message.username}</div>
-                <div className="messageContent bg-slate-700">{message.body}</div>
+                <div className="messageContent bg-slate-700">{message.body}<button className='deleteBtn' onClick={()=>{deleteMessage(message.$id)}} >🗑️</button></div>
               </div>
               ))}
         </div>

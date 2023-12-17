@@ -56,6 +56,14 @@
             
             padding: 2px 6px; 
             text-align: left;
+            .deleteBtn{
+                margin: 1px 5px;
+                border-radius: 50px;
+                background-color: rgba(7, 38, 79, 0.445);
+            }
+            .deleteBtn:hover{
+                background-color: rgba(216, 32, 47, 0.386);
+            }
         }
 
     }
