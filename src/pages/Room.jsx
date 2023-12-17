@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { databases } from '../appwriteConfig'
-import { ID, Query } from 'appwrite'
+import { databases, client } from '../appwriteConfig'
+import { ID, Query, Role, Permission } from 'appwrite'
+import { FiTrash } from "react-icons/fi";
 
 import "./style.scss"
+import Header from '../components/Header';
+import { userAuth } from '../utils/AuthContext';
 const Room = () => {
 
-  
+  const databaseId= import.meta.env.VITE_DATABASE_ID;
+  const collectionId = import.meta.env.VITE_COLLECTION_ID
 
+  const {user} = userAuth();
   //handel form/ create messages
   const [inputValue, setInputValue] = useState('');
   const handleInputChange = (e) => {
@@ -16,18 +21,23 @@ const Room = () => {
     e.preventDefault();
 
     let payload = {
-      body:inputValue
+      user_id:user.$id,
+      username:user.name,
+      body:inputValue,
+
     }
 
-    const response =await databases.createDocument(
-      import.meta.env.VITE_DATABASE_ID,
-      import.meta.env.VITE_COLLECTION_ID,
-      ID.unique(),
-      payload
-    );
+    let permissions = [
+      Permission.write(Role.user(user.$id))
+    ]
 
-    console.log('Form submitted', response);
-    setMessages(prevState => [...messages,response])
+    const response =await databases.createDocument(
+      databaseId,
+      collectionId,
+      ID.unique(),
+      payload,
+      permissions
+    );
     setInputValue('')
 
 
@@ -38,11 +48,12 @@ const Room = () => {
   const [messages, setMessages] = useState([]);
   const getMessages = async () => {
     const response = await databases.listDocuments(
-      import.meta.env.VITE_DATABASE_ID,
-      import.meta.env.VITE_COLLECTION_ID,
+      databaseId,
+      collectionId,
       [
-        Query.limit(3)
-      ]);
+        Query.orderDesc("$createdAt")
+      ]
+    );
     const filteredResponse = response.documents.map(doc => {
       const { $collectionId,$databaseId,...rest } = doc;
       return rest;
@@ -53,28 +64,46 @@ const Room = () => {
   //delete Message
   const deleteMessage = async (documentId) => {
     const response = databases.deleteDocument(
-      import.meta.env.VITE_DATABASE_ID,
-      import.meta.env.VITE_COLLECTION_ID,
+      databaseId,
+      collectionId,
       documentId);
       console.log("Deleted", response)
       setMessages(prevState => messages.filter(message => message.$id !== documentId))
       
   }
 
+  //realtime events
+  useEffect(()=>{
+    getMessages()
+    const unsubscribe = client.subscribe([`databases.${databaseId}.collections.${collectionId}.documents`], response => {
+      if(response.events.includes("databases.*.collections.*.documents.*.create")){
+        setMessages(prevState => [response.payload,...prevState])
+      }
+
+      if(response.events.includes("databases.*.collections.*.documents.*.delete")){
+        console.log('Deleted',response)
+        setMessages(prevState => prevState.filter(message => message.$id !== response.payload.$id))
+      }
+    });
+
+    return ()=>{
+      unsubscribe()
+    }
+  },[])
+
   
     
 
   //scrool to bottom
-  const messagesEndRef = useRef(null);
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
-    }
-  };
-  useEffect(()=>{
-    getMessages()
-    scrollToBottom();
-  },[])
+  // const messagesEndRef = useRef(null);
+  // const scrollToBottom = () => {
+  //   if (messagesEndRef.current) {
+  //     messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+  //   }
+  // };
+  // useEffect(()=>{
+  //   scrollToBottom();
+  // },[])
     
   
     
@@ -84,19 +113,44 @@ const Room = () => {
     //   <div className="messageContent bg-slate-700">Hello googler</div>
     // </div>
 
+    // {messages.map((message)=>(
+          
+    //   <div className="messageItems leftMsg" key={message.$id}>
+    //   <div className="messageUser">{message.username}</div>
+    //   <div className="messageContent bg-slate-700">
+    //     {message.body}{message.$permissions.includes(`delete(\"user:${user.$id}\")`) && (
+    //     <button className='deleteBtn' onClick={()=>{deleteMessage(message.$id)}} ><FiTrash /></button>)}
+    //   </div>
+    // </div>
+    // ))}
+
   return (
     <div className='mainContainer' >
       <div className="header bg-slate-500 ">
-        <div className='bg-slate-700 logo'>Logo</div>
+        <Header/>
       </div>
       <div className="contentBody bg-slate-500 ">
-        <div className="messages " ref={messagesEndRef}>
-              {messages.map((message)=>(
-                <div className="messageItems leftMsg" key={message.$id}>
-                <div className="messageUser">{message.username}</div>
-                <div className="messageContent bg-slate-700">{message.body}<button className='deleteBtn' onClick={()=>{deleteMessage(message.$id)}} >🗑️</button></div>
-              </div>
-              ))}
+        <div className="messages " >
+          {
+            messages.map((message)=>{
+              if(message.$permissions.includes(`delete(\"user:${user.$id}\")`)){
+                return(
+                  <div className="messageItems rightMsg" key={message.$id}>
+                    <div className="messageContent bg-slate-700">{message.body}<button className='deleteBtn' onClick={()=>{deleteMessage(message.$id)}} ><FiTrash /></button>
+                    </div>
+                  </div>
+                )
+              }
+              else{
+                return(
+                  <div className="messageItems leftMsg" key={message.$id}>
+                    <div className="messageUser">{message.username}</div>
+                    <div className="messageContent bg-slate-700">{message.body}</div>
+                  </div>
+                )
+              }
+            })
+          }
         </div>
         
         <form className="input-form" onSubmit={handleSubmit}>
