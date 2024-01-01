@@ -21,7 +21,8 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      <div className="bg-gray-800 p-8 rounded shadow-md max-w-md w-full">
+      <div className="bg-gray-800 p-8 rounded shadow-md max-w-md w-full m-5">
+      <h1 className='text-center text-4xl'>Nirvan Chat</h1>
         <h2 className="text-2xl font-semibold mb-4">Sign Up</h2>
         <form onSubmit={(e)=>{handleUserSignup(e,credentials)}}  method="POST">
           <div className="mb-4">

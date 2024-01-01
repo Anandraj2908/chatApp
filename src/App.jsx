@@ -4,8 +4,10 @@ import Room from './pages/Room'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './utils/AuthContext'
 import Signup from './pages/Signup'
+import { useEffect, useState } from 'react'
 
 function App() {
+
 
   return (
     <Router>

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { databases, client } from '../appwriteConfig'
 import { ID, Query, Role, Permission } from 'appwrite'
 import { FiTrash } from "react-icons/fi";
+import { useNavigate } from 'react-router-dom';
 
 import "./style.scss"
 import Header from '../components/Header';
@@ -12,7 +13,13 @@ const Room = () => {
   const collectionId = import.meta.env.VITE_COLLECTION_ID
 
   const {user} = userAuth();
-  //handel form/ create messages
+  const navigate = useNavigate();
+  useEffect(()=>{
+    if(user){
+      navigate('/')
+    }
+  }
+  ,[])
   const [inputValue, setInputValue] = useState('');
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -91,38 +98,7 @@ const Room = () => {
     }
   },[])
 
-  
-    
-
-  //scrool to bottom
-  // const messagesEndRef = useRef(null);
-  // const scrollToBottom = () => {
-  //   if (messagesEndRef.current) {
-  //     messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
-  //   }
-  // };
-  // useEffect(()=>{
-  //   scrollToBottom();
-  // },[])
-    
-  
-    
-  //rightMsg or leftMsg
-    // <div className="messageItems leftMsg">
-    //   <div className="messageUser">anand</div>
-    //   <div className="messageContent bg-slate-700">Hello googler</div>
-    // </div>
-
-    // {messages.map((message)=>(
-          
-    //   <div className="messageItems leftMsg" key={message.$id}>
-    //   <div className="messageUser">{message.username}</div>
-    //   <div className="messageContent bg-slate-700">
-    //     {message.body}{message.$permissions.includes(`delete(\"user:${user.$id}\")`) && (
-    //     <button className='deleteBtn' onClick={()=>{deleteMessage(message.$id)}} ><FiTrash /></button>)}
-    //   </div>
-    // </div>
-    // ))}
+ 
 
   return (
     <div className='mainContainer' >
@@ -157,17 +133,17 @@ const Room = () => {
           <div className="input-container">
             <input
               type="text"
-              value={inputValue}
+              value={ inputValue}
               onChange={handleInputChange}
               placeholder="Enter text here"
               className="input-field"
             />
+            
             <button type="submit"  className="submit-button">
              ↩
             </button>
           </div>
         </form>
-
       </div>
     </div>
   )
