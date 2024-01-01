@@ -58,7 +58,7 @@ const Room = () => {
       databaseId,
       collectionId,
       [
-        Query.orderDesc("$createdAt")
+        Query.orderAsc("$createdAt")
       ]
     );
     const filteredResponse = response.documents.map(doc => {
@@ -79,24 +79,40 @@ const Room = () => {
       
   }
 
+  //scroll to bottom
+  const messagesEndRef = useRef(null);
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   //realtime events
   useEffect(()=>{
     getMessages()
     const unsubscribe = client.subscribe([`databases.${databaseId}.collections.${collectionId}.documents`], response => {
       if(response.events.includes("databases.*.collections.*.documents.*.create")){
-        setMessages(prevState => [response.payload,...prevState])
+        setMessages(prevState => [...prevState,response.payload])
+        
       }
 
       if(response.events.includes("databases.*.collections.*.documents.*.delete")){
         console.log('Deleted',response)
         setMessages(prevState => prevState.filter(message => message.$id !== response.payload.$id))
+        
       }
     });
-
+    
     return ()=>{
+
       unsubscribe()
+      
     }
+    
   },[])
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
  
 
@@ -127,6 +143,7 @@ const Room = () => {
               }
             })
           }
+          <div key="end" ref={messagesEndRef} style={{ float: 'left', clear: 'both' }} />
         </div>
         
         <form className="input-form" onSubmit={handleSubmit}>
