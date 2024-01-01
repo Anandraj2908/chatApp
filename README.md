@@ -1,4 +1,4 @@
-# Real-Time Group Chat Website
+# Nirvan Chat
 
 An inclusive group chat website employing real-time capabilities powered by Appwrite's backend as a service. Designed for seamless interaction. Utilizing Appwrite's real-time features, it enables dynamic conversations and connections within the chatroom.
 
@@ -9,7 +9,7 @@ An inclusive group chat website employing real-time capabilities powered by Appw
 
 ## Technologies Used
 
-- **Frontend**: Developed with [Framework/Language].
+- **Frontend**: Developed with React.
 - **Backend Services**: Leverages Appwrite for real-time capabilities.
 
 ## Getting Started
