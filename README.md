@@ -12,12 +12,7 @@ An inclusive group chat website employing real-time capabilities powered by Appw
 - **Frontend**: Developed with React.
 - **Backend Services**: Leverages Appwrite for real-time capabilities.
 
-## Getting Started
 
-1. Clone the repository.
-2. Navigate to the project directory.
-3. Install dependencies with `npm install`.
-4. Start the development server with `npm start`.
 
 ## Contributors
 
